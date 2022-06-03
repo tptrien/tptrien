@@ -44,6 +44,20 @@ const app = {
             path: "https://mp3.vlcmusic.com/download.php?track_id=27145&format=320",
             image:
                 "https://a10.gaanacdn.com/gn_img/albums/YoEWlabzXB/oEWlj5gYKz/size_xxl_1586752323.webp"
+        },
+        {
+            name: "Feeling You",
+            singer: "Raftaar x Harjas",
+            path: "https://mp3.vlcmusic.com/download.php?track_id=27145&format=320",
+            image:
+                "https://a10.gaanacdn.com/gn_img/albums/YoEWlabzXB/oEWlj5gYKz/size_xxl_1586752323.webp"
+        },
+        {
+            name: "Feeling You",
+            singer: "Raftaar x Harjas",
+            path: "https://mp3.vlcmusic.com/download.php?track_id=27145&format=320",
+            image:
+                "https://a10.gaanacdn.com/gn_img/albums/YoEWlabzXB/oEWlj5gYKz/size_xxl_1586752323.webp"
         }
     ],
 
@@ -65,7 +79,7 @@ const app = {
             `
         })
 
-        console.log(htmls);
+        // console.log(htmls);
 
         $('.playlist').innerHTML = htmls.join('');
     },
@@ -74,7 +88,7 @@ const app = {
         const cd = $('.cd');
         const cdWidth = cd.offsetWidth;
         document.onscroll = function (){
-            const scrollTop = window.scrollY || document.document.scrollTop
+            const scrollTop = window.scrollY || document.documentElement.scrollTop
             const newCdWidth = cdWidth - scrollTop;
 
             cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
@@ -83,6 +97,7 @@ const app = {
     },
 
     start: function () {
+        this.handleEvents();
         this.render();
     }
 
