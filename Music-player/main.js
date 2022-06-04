@@ -1,8 +1,15 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-const app = {
+const cd = $('.cd');
+const heading = $('header h2');
+const cdThumb = $('.cd-thumb');
+const audio = $('#audio');
+const playBtn = $('.btn-toggle-play');
+const player = $('.player');
 
+const app = {
+    currentIndex: 0,
     songs: [
         {
             name: "Click Pow Get Down",
@@ -79,13 +86,10 @@ const app = {
             `
         })
 
-        // console.log(htmls);
-
         $('.playlist').innerHTML = htmls.join('');
     },
 
     handleEvents: function (){
-        const cd = $('.cd');
         const cdWidth = cd.offsetWidth;
         document.onscroll = function (){
             const scrollTop = window.scrollY || document.documentElement.scrollTop
@@ -94,10 +98,37 @@ const app = {
             cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
             cd.style.opacity = newCdWidth / cdWidth;
         }
+
+        // Xử lý sự kiện pkay
+
+        playBtn.onclick = function(){
+            // audio.play();
+            console.log(audio)
+            player.classList.add('playing');
+        }
+
+    },
+
+    defineProperty: function (){
+        Object.defineProperty(this, 'currentSong', {
+            get: function () {
+                return this.currentSong[this.currentIndex];
+            }
+        })
+    },
+
+    loadCurrentSong: function(){
+
+        heading.textContent = this.currentSong.name;
+        cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
+        audio.src = this.currentSong.path;
+
     },
 
     start: function () {
+        this.defineProperty();
         this.handleEvents();
+        this.loadCurrentSong();
         this.render();
     }
 
