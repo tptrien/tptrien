@@ -7,6 +7,9 @@ const cdThumb = $('.cd-thumb');
 const audio = $('#audio');
 const playBtn = $('.btn-toggle-play');
 const player = $('.player');
+const progress = $('#progress');
+const nextBtn = $('.btn-next');
+const prevBtn = $('.btn-prev');
 
 const app = {
     currentIndex: 0,
@@ -93,6 +96,19 @@ const app = {
     handleEvents: function (){
         const _this = this;
         const cdWidth = cd.offsetWidth;
+
+        // quay cd
+        cdThumbAnimate = cdThumb.animate([
+            {
+                transform: 'rotate(360deg)'
+            }
+        ],{
+            duration: 10000,
+            iterations: Infinity
+        })
+
+        cdThumbAnimate.pause();
+
         document.onscroll = function (){
             const scrollTop = window.scrollY || document.documentElement.scrollTop
             const newCdWidth = cdWidth - scrollTop;
@@ -101,19 +117,48 @@ const app = {
             cd.style.opacity = newCdWidth / cdWidth;
         }
 
-        // Xử lý sự kiện pkay
+        // Xử lý sự kiện play
 
         playBtn.onclick = function(){
             if(_this.isPlaying){
-                _this.isPlaying = false;
                 audio.pause();
-                player.classList.remove('playing');
             }else{
-                _this.isPlaying = true;
                 audio.play();
-                console.log(audio)
-                player.classList.add('playing');
             }
+        }
+
+        audio.onplay = function(){
+            _this.isPlaying = true;
+            player.classList.add('playing');
+            cdThumbAnimate.play();
+        }
+
+        audio.onpause = function(){
+            _this.isPlaying = false;
+            player.classList.remove('playing');
+            cdThumbAnimate.pause();
+        }
+
+        audio.ontimeupdate = function(){
+            if(audio.duration){
+                const progressPercent = Math.floor(audio.currentTime / audio.duration * 100);
+                progress.value = progressPercent;
+            }
+        }
+
+        progress.onchange = function(e){
+            const seekTime = audio.duration / 100 * e.target.value;
+            audio.currentTime = seekTime;
+        }
+
+        nextBtn.onclick = function(){
+            _this.nextSong();
+            audio.play();
+        }
+
+        prevBtn.onclick = function(){
+            _this.prevSong();
+            audio.play();
         }
 
     },
@@ -132,6 +177,22 @@ const app = {
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
         audio.src = this.currentSong.path;
 
+    },
+
+    nextSong: function(){
+        this.currentIndex++;
+        if(this.currentIndex >= this.songs.length){
+            this.currentIndex = 0;
+        }
+        this.loadCurrentSong();
+    },
+
+    prevSong: function(){
+        this.currentIndex--;
+        if(this.currentIndex < 0){
+            this.currentIndex = this.songs.length - 1;
+        }
+        this.loadCurrentSong();
     },
 
     start: function () {
