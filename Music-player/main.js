@@ -11,11 +11,14 @@ const progress = $('#progress');
 const nextBtn = $('.btn-next');
 const prevBtn = $('.btn-prev');
 const randomBtn = $('.btn-random');
+const repeatBtn = $('.btn-repeat');
+const playList = $('.playlist');
 
 const app = {
     currentIndex: 0,
     isPlaying: false,
     isRandom: false,
+    isRepeat: false,
     songs: [
         {
             name: "Click Pow Get Down",
@@ -77,7 +80,7 @@ const app = {
     render: function () {
         const htmls = this.songs.map((song, index) => {
             return `
-                <div class="song">
+                <div class="song ${index === this.currentIndex ? 'active' : ''}" data-index="${index}">
                     <div class="thumb"
                         style="background-image: url('${song.image}')">
                     </div>
@@ -92,7 +95,7 @@ const app = {
             `
         })
 
-        $('.playlist').innerHTML = htmls.join('');
+        playList.innerHTML = htmls.join('');
     },
 
     handleEvents: function (){
@@ -160,6 +163,8 @@ const app = {
                 _this.nextSong();
             }
             audio.play();
+            _this.render();
+            _this.scrollToActiveSong();
         }
 
         prevBtn.onclick = function(){
@@ -169,11 +174,40 @@ const app = {
                 _this.prevSong();
             }
             audio.play();
+            _this.render();
+            _this.scrollToActiveSong();
         }
 
         randomBtn.onclick = function(e){
             _this.isRandom = !_this.isRandom;
             randomBtn.classList.toggle('active', _this.isRandom);
+        }
+
+        repeatBtn.onclick = function(){
+            _this.isRepeat = !_this.isRepeat;
+            repeatBtn.classList.toggle('active', _this.isRepeat);
+        }
+
+        audio.onended = function(){
+            if(_this.isRepeat){
+                audio.play();
+            }else{
+                nextBtn.click(); 
+            }
+        }
+
+        playList.onclick = function(e){
+            const songNode = e.target.closest('.song:not(.active)');
+            if( songNode ||
+                e.target.closest('.option')
+            ){
+                if(songNode){
+                    _this.currentIndex = Number(songNode.dataset.index);
+                    _this.loadCurrentSong();
+                    _this.render();
+                    audio.play();
+                }
+            }
         }
 
     },
@@ -183,6 +217,15 @@ const app = {
             get: function () {
                 return this.songs[this.currentIndex];
             }
+        })
+    },
+
+    scrollToActiveSong: function (){
+        setTimeout(function(){
+            $('.song.active').scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            }, 500);
         })
     },
 
@@ -211,12 +254,11 @@ const app = {
     },
 
     playRandomSong: function(){
+        let currentSongIndex = this.currentIndex;
         do{
-            const currentSongIndex = this.currentIndex;
             this.currentIndex = Math.floor(Math.random() * this.songs.length);
-        }while(this.currentIndex == currentSongIndex);
-
-        this.currentIndex = currentSongIndex;
+        }while(this.currentIndex === currentSongIndex);
+        
         this.loadCurrentSong();
     },
 
