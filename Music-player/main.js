@@ -1,6 +1,8 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+const PLAYER_STORAGE_KEY = 'F8_PLAYER'
+
 const cd = $('.cd');
 const heading = $('header h2');
 const cdThumb = $('.cd-thumb');
@@ -19,6 +21,7 @@ const app = {
     isPlaying: false,
     isRandom: false,
     isRepeat: false,
+    config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
     songs: [
         {
             name: "Click Pow Get Down",
@@ -76,6 +79,11 @@ const app = {
                 "https://a10.gaanacdn.com/gn_img/albums/YoEWlabzXB/oEWlj5gYKz/size_xxl_1586752323.webp"
         }
     ],
+
+    setConfig: function(key, value) {
+        this.config[key] = value;
+        localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config));
+    },
 
     render: function () {
         const htmls = this.songs.map((song, index) => {
@@ -180,11 +188,13 @@ const app = {
 
         randomBtn.onclick = function(e){
             _this.isRandom = !_this.isRandom;
+            _this.setConfig('isRandom', _this.isRandom);
             randomBtn.classList.toggle('active', _this.isRandom);
         }
 
         repeatBtn.onclick = function(){
             _this.isRepeat = !_this.isRepeat;
+            _this.setConfig('isRandom', _this.isRandom);
             repeatBtn.classList.toggle('active', _this.isRepeat);
         }
 
@@ -237,6 +247,11 @@ const app = {
 
     },
 
+    loadConfig: function(){
+        this.isRandom = this.config.isRandom;
+        this.isRepeat = this.config.isRepeat;
+    },
+
     nextSong: function(){
         this.currentIndex++;
         if(this.currentIndex >= this.songs.length){
@@ -263,10 +278,13 @@ const app = {
     },
 
     start: function () {
+        this.loadConfig();
         this.defineProperty();
         this.handleEvents();
         this.loadCurrentSong();
         this.render();
+        randomBtn.classList.toggle("active", _this.isRandom);
+        randomBtn.classList.toggle("active", _this.isRepeat);
     }
 
 }
